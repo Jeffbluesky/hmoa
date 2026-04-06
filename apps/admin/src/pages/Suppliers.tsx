@@ -141,7 +141,7 @@ function Suppliers() {
         onCancel={closeModal}
         confirmLoading={submitting}
         maskClosable={false}
-        width={800}
+        width={1000}
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           {editingItem && (

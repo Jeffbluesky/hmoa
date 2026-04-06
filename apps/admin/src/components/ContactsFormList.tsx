@@ -14,7 +14,7 @@ export function ContactsFormList() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr 1fr 60px 36px',
+                gridTemplateColumns: '1.5fr 1fr 1.2fr 1.5fr 60px 36px',
                 gap: 0,
                 background: '#fafafa',
                 padding: '6px 8px',

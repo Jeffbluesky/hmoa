@@ -172,7 +172,7 @@ function Customers() {
         onCancel={closeModal}
         confirmLoading={submitting}
         maskClosable={false}
-        width={800}
+        width={1000}
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           {editingItem && (
@@ -208,7 +208,17 @@ function Customers() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="typeId" label="客户类型" rules={[{ required: true, message: '请选择客户类型' }]}>
-                <Select placeholder="选择客户类型" onChange={(value) => setSelectedTypeId(value || undefined)}>
+                <Select
+                  placeholder="选择客户类型"
+                  onChange={(value) => {
+                    setSelectedTypeId(value || undefined)
+                    // 非代理类型时清空最终客户
+                    const newAgentTypeId = categories.find(cat => cat.name === '代理' || cat.name === '客户代理')?.id
+                    if (value !== newAgentTypeId) {
+                      form.setFieldValue('finalCustomerId', undefined)
+                    }
+                  }}
+                >
                   {categories.map((cat) => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)}
                 </Select>
               </Form.Item>
