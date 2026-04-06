@@ -197,41 +197,25 @@ export async function deleteCustomer(id: string) {
   if (!customer) {
     throw new AppError(404, '客户不存在', 'CUSTOMER_NOT_FOUND');
   }
-
-  // 检查是否有关联的联系人
-  const contactCount = await prisma.contact.count({
-    where: { customerId: id },
-  });
-  if (contactCount > 0) {
-    throw new AppError(400, '客户有关联的联系人，无法删除', 'HAS_CONTACTS');
-  }
-
   await prisma.customer.delete({ where: { id } });
   return { id };
 }
 
 export async function getCustomerCountries(pagination: PaginationResult, keyword?: string) {
-  // 获取所有客户的国家字段
-  const allCustomers = await prisma.customer.findMany({
-    where: keyword
-      ? {
-          country: { contains: keyword },
-        }
-      : undefined,
-    select: { country: true },
-    orderBy: { country: 'asc' },
-  });
+  const where = keyword ? { country: { contains: keyword } } : { country: { not: null } };
 
-  // 去重并过滤掉null/空值
-  const uniqueCountries = Array.from(
-    new Set(allCustomers.map(c => c.country).filter(Boolean))
-  ).sort();
+  const [groups, total] = await Promise.all([
+    prisma.customer.groupBy({
+      by: ['country'],
+      where,
+      orderBy: { country: 'asc' },
+      skip: pagination.skip,
+      take: pagination.pageSize,
+    }),
+    prisma.customer.groupBy({ by: ['country'], where }).then(r => r.length),
+  ]);
 
-  // 分页处理
-  const start = pagination.skip;
-  const end = start + pagination.pageSize;
-  const data = uniqueCountries.slice(start, end);
-
-  return { data, total: uniqueCountries.length };
+  const data = groups.map(g => g.country).filter(Boolean) as string[];
+  return { data, total };
 }
 

@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { Table, Button, Space, Tag, Popconfirm, Image } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { Table, Button, Space, Tag, Image } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import { useCrud } from '../../hooks/useCrud'
 import { SearchBar } from '../../components/SearchBar'
+import { TableActions } from '../../components/TableActions'
 import type { Product, Dictionary } from '@hmoa/types'
 
 interface ProductWithRelations extends Product {
@@ -144,22 +145,11 @@ function Products() {
             key: 'action',
             width: 150,
             render: (_, record: ProductWithRelations) => (
-              <Space>
-                <Button type="text" icon={<EditOutlined />} onClick={() => navigate(`/products/${record.id}/edit`)}>
-                  编辑
-                </Button>
-                <Popconfirm
-                  title="确认删除"
-                  description="删除后不可恢复，是否继续？"
-                  onConfirm={async () => await handleDelete(`/products/${record.id}`)}
-                  okText="确认"
-                  cancelText="取消"
-                >
-                  <Button type="text" danger icon={<DeleteOutlined />}>
-                    删除
-                  </Button>
-                </Popconfirm>
-              </Space>
+              <TableActions
+                record={record}
+                onEdit={() => navigate(`/products/${record.id}/edit`)}
+                onDelete={async () => { await handleDelete(`/products/${record.id}`) }}
+              />
             ),
           },
         ]}

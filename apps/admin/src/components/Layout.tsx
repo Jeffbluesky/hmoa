@@ -3,7 +3,6 @@ import { Layout as AntLayout, Menu, Dropdown, Avatar } from 'antd'
 import {
   DashboardOutlined,
   TeamOutlined,
-  SettingOutlined,
   LogoutOutlined,
   UserOutlined,
   BookOutlined,
@@ -56,9 +55,6 @@ function Layout() {
   }
 
   const userMenuItems = [
-    { key: 'profile', icon: <UserOutlined />, label: '个人信息' },
-    { key: 'settings', icon: <SettingOutlined />, label: '系统设置' },
-    { type: 'divider' as const },
     { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
   ]
 

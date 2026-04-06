@@ -46,7 +46,7 @@ export interface UpdateProductInput {
   boms?: ProductBOMInput[];
 }
 
-const productInclude = {
+const productDetailInclude = {
   category: { select: { id: true, code: true, name: true } },
   colorDict: { select: { id: true, code: true, name: true } },
   boms: {
@@ -164,7 +164,7 @@ export async function createProduct(input: CreateProductInput) {
         })),
       },
     },
-    include: productInclude,
+    include: productDetailInclude,
   });
 }
 
@@ -227,7 +227,7 @@ export async function updateProduct(id: string, input: UpdateProductInput) {
   return prisma.product.update({
     where: { id },
     data,
-    include: productInclude,
+    include: productDetailInclude,
   });
 }
 

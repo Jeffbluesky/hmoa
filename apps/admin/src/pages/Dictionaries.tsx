@@ -55,7 +55,7 @@ function Dictionaries() {
     if (selectedTypeId) {
       refresh()
     }
-  }, [selectedTypeId, page, pageSize])
+  }, [selectedTypeId, page, pageSize, refresh])
 
   useEffect(() => {
     if (!modalVisible) setSortEditable(false)

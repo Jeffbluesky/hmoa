@@ -173,21 +173,21 @@ export async function updateSupplier(id: string, input: UpdateSupplierInput) {
 }
 
 export async function getSupplierCities(pagination: PaginationResult, keyword?: string) {
-  const allSuppliers = await prisma.supplier.findMany({
-    where: keyword ? { city: { contains: keyword } } : undefined,
-    select: { city: true },
-    orderBy: { city: 'asc' },
-  });
+  const where = keyword ? { city: { contains: keyword } } : { city: { not: null } };
 
-  const uniqueCities = Array.from(
-    new Set(allSuppliers.map(s => s.city).filter(Boolean))
-  ).sort() as string[];
+  const [groups, total] = await Promise.all([
+    prisma.supplier.groupBy({
+      by: ['city'],
+      where,
+      orderBy: { city: 'asc' },
+      skip: pagination.skip,
+      take: pagination.pageSize,
+    }),
+    prisma.supplier.groupBy({ by: ['city'], where }).then(r => r.length),
+  ]);
 
-  const start = pagination.skip;
-  const end = start + pagination.pageSize;
-  const data = uniqueCities.slice(start, end);
-
-  return { data, total: uniqueCities.length };
+  const data = groups.map(g => g.city).filter(Boolean) as string[];
+  return { data, total };
 }
 
 export async function deleteSupplier(id: string) {
@@ -195,15 +195,6 @@ export async function deleteSupplier(id: string) {
   if (!supplier) {
     throw new AppError(404, '供应商不存在', 'SUPPLIER_NOT_FOUND');
   }
-
-  // 检查是否有关联的联系人
-  const contactCount = await prisma.contact.count({
-    where: { supplierId: id },
-  });
-  if (contactCount > 0) {
-    throw new AppError(400, '供应商有关联的联系人，无法删除', 'HAS_CONTACTS');
-  }
-
   await prisma.supplier.delete({ where: { id } });
   return { id };
 }

@@ -1,17 +1,16 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Table, Button, Tag, Modal, Form, Input, Select, AutoComplete, App, Row, Col } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useCrud } from '../hooks/useCrud'
 import { http } from '../utils/api'
 import { TableActions } from '../components/TableActions'
+import { renderAutoCompleteOptions } from '../utils/autocomplete'
 import type { MaterialWithRelations, Dictionary, Supplier } from '@hmoa/types'
 
 const { Option } = Select
 
 function Materials() {
   const { message } = App.useApp()
-  const messageRef = useRef(message)
-  messageRef.current = message
 
   const [units, setUnits] = useState<Dictionary[]>([])
   const [colors, setColors] = useState<Dictionary[]>([])
@@ -20,6 +19,7 @@ function Materials() {
   const [form] = Form.useForm()
   const [materialNames, setMaterialNames] = useState<string[]>([])
   const [loadingNames, setLoadingNames] = useState(false)
+  const [materialNameValue, setMaterialNameValue] = useState<string>('')
 
   const {
     list,
@@ -37,65 +37,50 @@ function Materials() {
     handleDelete,
   } = useCrud<MaterialWithRelations>({ listUrl: '/materials', initialPageSize: 10 })
 
-
   const fetchMaterialNames = useCallback(async (page: number = 1, keyword?: string) => {
     setLoadingNames(true)
     try {
-      const res = await http.getPage<string>(
-        '/materials/names',
-        { params: { page, pageSize: 10, keyword } }
-      )
-      if (page === 1) {
-        setMaterialNames(res.list)
-      } else {
-        setMaterialNames(prev => [...prev, ...res.list])
-      }
-    } catch (error) {
-      messageRef.current.error('获取材料名称列表失败')
+      const res = await http.getPage<string>('/materials/names', { params: { page, pageSize: 10, keyword } })
+      setMaterialNames(page === 1 ? res.list : (prev) => [...prev, ...res.list])
+    } catch {
+      message.error('获取材料名称列表失败')
     } finally {
       setLoadingNames(false)
     }
-  }, [])
+  }, [message])
 
   useEffect(() => {
     http.get<Dictionary[]>('/dictionaries/by-type-code/规格单位')
       .then((res) => setUnits(res))
-      .catch(() => messageRef.current.error('获取单位列表失败'))
+      .catch(() => message.error('获取单位列表失败'))
     http.get<Dictionary[]>('/dictionaries/by-type-code/颜色')
       .then((res) => setColors(res))
-      .catch(() => messageRef.current.error('获取颜色列表失败'))
+      .catch(() => message.error('获取颜色列表失败'))
     http.get<Supplier[]>('/suppliers/all')
       .then((res) => setSuppliers(Array.isArray(res) ? res : []))
-      .catch(() => messageRef.current.error('获取供应商列表失败'))
+      .catch(() => message.error('获取供应商列表失败'))
     fetchMaterialNames(1)
-  }, [fetchMaterialNames])
-
+  }, [fetchMaterialNames, message])
 
   const onFinish = async (values: any) => {
     const name = values.name?.trim()
-    if (!name) {
-      messageRef.current.error('请输入材料名称')
-      return
-    }
-    const payload = { ...values, name }
+    if (!name) { message.error('请输入材料名称'); return }
     const url = editingItem ? `/materials/${editingItem.id}` : '/materials'
     const method = editingItem ? 'put' : 'post'
-    const ok = await handleSubmit(url, payload, method)
+    const ok = await handleSubmit(url, { ...values, name }, method)
     if (ok) {
       form.resetFields()
-      // 重新获取材料名称列表
       fetchMaterialNames(1)
     }
   }
 
   const handleOpen = (item?: MaterialWithRelations) => {
     openModal(item)
-    // 获取材料名称列表，重置为初始状态
     fetchMaterialNames(1)
     if (item) {
-      // 找到对应供应商的城市用于回填
       const itemSupplier = suppliers.find(s => s.id === item.supplierId)
       setSupplierCity(itemSupplier?.city || undefined)
+      setMaterialNameValue(item.name || '')
       form.setFieldsValue({
         name: item.name || undefined,
         specification: item.specification || undefined,
@@ -107,6 +92,7 @@ function Materials() {
       })
     } else {
       setSupplierCity(undefined)
+      setMaterialNameValue('')
       form.resetFields()
     }
   }
@@ -122,27 +108,11 @@ function Materials() {
 
       <Table
         columns={[
-          {
-            title: '编号',
-            dataIndex: 'code',
-            render: (code: string) => <Tag color="blue">{code}</Tag>,
-          },
+          { title: '编号', dataIndex: 'code', render: (code: string) => <Tag color="blue">{code}</Tag> },
           { title: '材料名称', dataIndex: 'name' },
-          {
-            title: '规格',
-            dataIndex: 'specification',
-            render: (spec: string | null) => spec || '-',
-          },
-          {
-            title: '单位',
-            dataIndex: 'unit',
-            render: (unit: Dictionary | null) => unit?.name || '-',
-          },
-          {
-            title: '供应商',
-            dataIndex: 'supplier',
-            render: (supplier: { name: string } | null) => supplier?.name || '-',
-          },
+          { title: '规格', dataIndex: 'specification', render: (v: string | null) => v || '-' },
+          { title: '单位', dataIndex: 'unit', render: (unit: Dictionary | null) => unit?.name || '-' },
+          { title: '供应商', dataIndex: 'supplier', render: (s: { name: string } | null) => s?.name || '-' },
           {
             title: '创建时间',
             dataIndex: 'createdAt',
@@ -154,9 +124,7 @@ function Materials() {
               <TableActions
                 record={record}
                 onEdit={handleOpen}
-                onDelete={async () => {
-                  await handleDelete(`/materials/${record.id}`)
-                }}
+                onDelete={async () => { await handleDelete(`/materials/${record.id}`) }}
               />
             ),
           },
@@ -164,14 +132,7 @@ function Materials() {
         dataSource={list}
         rowKey="id"
         loading={loading}
-        pagination={{
-          current: page,
-          pageSize,
-          total,
-          onChange: changePage,
-          showSizeChanger: true,
-          showTotal: (t) => `共 ${t} 条`,
-        }}
+        pagination={{ current: page, pageSize, total, onChange: changePage, showSizeChanger: true, showTotal: (t) => `共 ${t} 条` }}
       />
 
       <Modal
@@ -184,78 +145,33 @@ function Materials() {
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           {editingItem && (
-            <Form.Item label="编号">
-              <Input value={editingItem.code} disabled />
-            </Form.Item>
+            <Form.Item label="编号"><Input value={editingItem.code} disabled /></Form.Item>
           )}
 
-          <Form.Item
-            name="name"
-            label="材料名称"
-            validateFirst
-            rules={[{ required: true, message: '请输入材料名称' }]}
-          >
+          <Form.Item name="name" label="材料名称" validateFirst rules={[{ required: true, message: '请输入材料名称' }]}>
             <AutoComplete
-              onSearch={(keyword) => {
-                fetchMaterialNames(1, keyword || '')
-              }}
-              onFocus={() => {
-                const currentValue = form.getFieldValue('name') || ''
-                fetchMaterialNames(1, currentValue)
-              }}
+              onSearch={(kw) => fetchMaterialNames(1, kw || '')}
+              onFocus={() => fetchMaterialNames(1, form.getFieldValue('name') || '')}
+              onChange={(value) => setMaterialNameValue(value || '')}
               placeholder="输入或选择材料名称"
               style={{ width: '100%' }}
               allowClear
               notFoundContent={loadingNames ? '加载中...' : '无匹配结果'}
             >
-              {(() => {
-                const currentName = form.getFieldValue('name') || ''
-                const options = (materialNames || []).map(n => (
-                  <AutoComplete.Option key={n} value={n}>
-                    {n}
-                  </AutoComplete.Option>
-                ))
-
-                // 如果当前输入值不为空且不在现有材料中，添加创建选项
-                if (currentName && !materialNames.includes(currentName)) {
-                  options.push(
-                    <AutoComplete.Option
-                      key={`__create_new__:${currentName}`}
-                      value={currentName}
-                      style={{ color: '#1890ff', borderTop: '1px solid #f0f0f0' }}
-                    >
-                      创建 "{currentName}"
-                    </AutoComplete.Option>
-                  )
-                }
-
-                return options
-              })()}
+              {renderAutoCompleteOptions(materialNames, materialNameValue, '创建')}
             </AutoComplete>
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="specification"
-                label="规格"
-                rules={[{ required: true, message: '请输入规格' }]}
-              >
+              <Form.Item name="specification" label="规格" rules={[{ required: true, message: '请输入规格' }]}>
                 <Input placeholder="如：30*30*20CM" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="unitId"
-                label="单位"
-                rules={[{ required: true, message: '请选择单位' }]}
-              >
+              <Form.Item name="unitId" label="单位" rules={[{ required: true, message: '请选择单位' }]}>
                 <Select placeholder="选择单位">
-                  {(units || []).map((unit) => (
-                    <Option key={unit.id} value={unit.id}>
-                      {unit.name}
-                    </Option>
-                  ))}
+                  {units.map((unit) => <Option key={unit.id} value={unit.id}>{unit.name}</Option>)}
                 </Select>
               </Form.Item>
             </Col>
@@ -268,10 +184,7 @@ function Materials() {
                   placeholder="选择城市"
                   allowClear
                   value={supplierCity}
-                  onChange={(val) => {
-                    setSupplierCity(val)
-                    form.setFieldValue('supplierId', undefined)
-                  }}
+                  onChange={(val) => { setSupplierCity(val); form.setFieldValue('supplierId', undefined) }}
                 >
                   {Array.from(new Set(suppliers.map(s => s.city).filter(Boolean))).sort().map(city => (
                     <Option key={city!} value={city!}>{city}</Option>
@@ -280,11 +193,7 @@ function Materials() {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="supplierId"
-                label="供应商"
-                rules={[{ required: true, message: '请选择供应商' }]}
-              >
+              <Form.Item name="supplierId" label="供应商" rules={[{ required: true, message: '请选择供应商' }]}>
                 <Select
                   placeholder={supplierCity ? '选择供应商' : '请先选择城市'}
                   allowClear
@@ -292,12 +201,9 @@ function Materials() {
                   optionFilterProp="children"
                   disabled={!supplierCity}
                 >
-                  {suppliers
-                    .filter(s => s.city === supplierCity)
-                    .map(s => (
-                      <Option key={s.id} value={s.id}>{s.name}</Option>
-                    ))
-                  }
+                  {suppliers.filter(s => s.city === supplierCity).map(s => (
+                    <Option key={s.id} value={s.id}>{s.name}</Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -307,11 +213,7 @@ function Materials() {
             <Col span={12}>
               <Form.Item name="color" label="颜色（可选）">
                 <Select placeholder="选择颜色" allowClear showSearch>
-                  {(colors || []).map((c) => (
-                    <Option key={c.id} value={c.name}>
-                      {c.name}
-                    </Option>
-                  ))}
+                  {colors.map((c) => <Option key={c.id} value={c.name}>{c.name}</Option>)}
                 </Select>
               </Form.Item>
             </Col>
