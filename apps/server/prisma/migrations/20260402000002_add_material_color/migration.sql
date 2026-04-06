@@ -1,0 +1,3 @@
+ALTER TABLE `materials`
+  ADD COLUMN `color` VARCHAR(191) NULL,
+  ADD COLUMN `colorCode` VARCHAR(191) NULL;

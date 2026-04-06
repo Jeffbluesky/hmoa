@@ -1,0 +1,261 @@
+/* Apple Design System Tokens - Based on DESIGN_apple.md */
+
+:root {
+  /* ===== Color Palette ===== */
+
+  /* Primary Background Colors */
+  --apple-black: #000000;
+  --apple-light-gray: #f5f5f7;
+  --apple-near-black: #1d1d1f;
+
+  /* Interactive Colors (Apple Blue spectrum) */
+  --apple-blue: #0071e3;
+  --apple-link-blue: #0066cc;
+  --apple-bright-blue: #2997ff;
+
+  /* Text Colors */
+  --apple-text-white: #ffffff;
+  --apple-text-near-black: #1d1d1f;
+  --apple-text-black-80: rgba(0, 0, 0, 0.8);
+  --apple-text-black-48: rgba(0, 0, 0, 0.48);
+
+  /* Surface Colors (Dark variants for dark backgrounds) */
+  --apple-dark-surface-1: #272729;
+  --apple-dark-surface-2: #262628;
+  --apple-dark-surface-3: #28282a;
+  --apple-dark-surface-4: #2a2a2d;
+  --apple-dark-surface-5: #242426;
+
+  /* Button States */
+  --apple-button-active: #ededf2;
+  --apple-button-default-light: #fafafc;
+  --apple-overlay: rgba(210, 210, 215, 0.64);
+  --apple-white-32: rgba(255, 255, 255, 0.32);
+
+  /* ===== Spacing System (8px base unit) ===== */
+  --apple-space-2: 2px;
+  --apple-space-4: 4px;
+  --apple-space-5: 5px;
+  --apple-space-6: 6px;
+  --apple-space-7: 7px;
+  --apple-space-8: 8px;
+  --apple-space-9: 9px;
+  --apple-space-10: 10px;
+  --apple-space-11: 11px;
+  --apple-space-12: 12px;
+  --apple-space-14: 14px;
+  --apple-space-15: 15px;
+  --apple-space-16: 16px;
+  --apple-space-17: 17px;
+  --apple-space-20: 20px;
+  --apple-space-24: 24px;
+  --apple-space-32: 32px;
+  --apple-space-48: 48px;
+  --apple-space-64: 64px;
+
+  /* ===== Border Radius Scale ===== */
+  --apple-radius-micro: 5px;
+  --apple-radius-standard: 8px;
+  --apple-radius-comfortable: 11px;
+  --apple-radius-large: 12px;
+  --apple-radius-pill: 980px;
+  --apple-radius-circle: 50%;
+
+  /* ===== Typography ===== */
+
+  /* Font Families (SF Pro fallback stack) */
+  --apple-font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --apple-font-text: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Font Sizes (in rem for accessibility) */
+  --apple-font-size-hero: 3.5rem; /* 56px */
+  --apple-font-size-section-heading: 2.5rem; /* 40px */
+  --apple-font-size-tile-heading: 1.75rem; /* 28px */
+  --apple-font-size-card-title: 1.3125rem; /* 21px */
+  --apple-font-size-sub-heading: 1.3125rem; /* 21px */
+  --apple-font-size-nav-heading: 2.125rem; /* 34px */
+  --apple-font-size-sub-nav: 1.5rem; /* 24px */
+  --apple-font-size-body: 1.0625rem; /* 17px */
+  --apple-font-size-button-large: 1.125rem; /* 18px */
+  --apple-font-size-button: 1.0625rem; /* 17px */
+  --apple-font-size-link: 0.875rem; /* 14px */
+  --apple-font-size-caption: 0.875rem; /* 14px */
+  --apple-font-size-micro: 0.75rem; /* 12px */
+  --apple-font-size-nano: 0.625rem; /* 10px */
+
+  /* Line Heights (Apple's tight headlines, relaxed body) */
+  --apple-line-height-hero: 1.07;
+  --apple-line-height-section-heading: 1.10;
+  --apple-line-height-tile-heading: 1.14;
+  --apple-line-height-card-title: 1.19;
+  --apple-line-height-sub-heading: 1.19;
+  --apple-line-height-nav-heading: 1.47;
+  --apple-line-height-sub-nav: 1.50;
+  --apple-line-height-body: 1.47;
+  --apple-line-height-body-emphasis: 1.24;
+  --apple-line-height-button-large: 1.00;
+  --apple-line-height-button: 2.41;
+  --apple-line-height-link: 1.43;
+  --apple-line-height-caption: 1.29;
+  --apple-line-height-micro: 1.33;
+  --apple-line-height-nano: 1.47;
+
+  /* Letter Spacing (Negative tracking at all sizes) */
+  --apple-letter-spacing-hero: -0.28px;
+  --apple-letter-spacing-tile-heading: 0.196px;
+  --apple-letter-spacing-card-title: 0.231px;
+  --apple-letter-spacing-sub-heading: 0.231px;
+  --apple-letter-spacing-nav-heading: -0.374px;
+  --apple-letter-spacing-body: -0.374px;
+  --apple-letter-spacing-body-emphasis: -0.374px;
+  --apple-letter-spacing-link: -0.224px;
+  --apple-letter-spacing-caption: -0.224px;
+  --apple-letter-spacing-micro: -0.12px;
+  --apple-letter-spacing-nano: -0.08px;
+
+  /* ===== Shadows ===== */
+  --apple-shadow-card: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+  --apple-shadow-nav: 0 1px 0 rgba(0, 0, 0, 0.1);
+
+  /* ===== Z-Index Scale ===== */
+  --apple-z-index-nav: 1000;
+  --apple-z-index-modal: 2000;
+  --apple-z-index-popover: 3000;
+  --apple-z-index-tooltip: 4000;
+}
+
+/* ===== Utility Classes for Color Themes ===== */
+
+/* Dark Section Theme */
+.apple-section-dark {
+  background-color: var(--apple-black) !important;
+  color: var(--apple-text-white) !important;
+}
+
+/* Light Section Theme */
+.apple-section-light {
+  background-color: var(--apple-light-gray) !important;
+  color: var(--apple-text-near-black) !important;
+}
+
+/* Glass Navigation Effect */
+.apple-nav-glass {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+}
+
+/* ===== Typography Utility Classes ===== */
+
+.apple-text-hero {
+  font-family: var(--apple-font-display);
+  font-size: var(--apple-font-size-hero);
+  line-height: var(--apple-line-height-hero);
+  letter-spacing: var(--apple-letter-spacing-hero);
+  font-weight: 600;
+}
+
+.apple-text-section-heading {
+  font-family: var(--apple-font-display);
+  font-size: var(--apple-font-size-section-heading);
+  line-height: var(--apple-line-height-section-heading);
+  font-weight: 600;
+}
+
+.apple-text-tile-heading {
+  font-family: var(--apple-font-display);
+  font-size: var(--apple-font-size-tile-heading);
+  line-height: var(--apple-line-height-tile-heading);
+  letter-spacing: var(--apple-letter-spacing-tile-heading);
+  font-weight: 400;
+}
+
+.apple-text-card-title {
+  font-family: var(--apple-font-display);
+  font-size: var(--apple-font-size-card-title);
+  line-height: var(--apple-line-height-card-title);
+  letter-spacing: var(--apple-letter-spacing-card-title);
+  font-weight: 700;
+}
+
+.apple-text-sub-heading {
+  font-family: var(--apple-font-display);
+  font-size: var(--apple-font-size-sub-heading);
+  line-height: var(--apple-line-height-sub-heading);
+  letter-spacing: var(--apple-letter-spacing-sub-heading);
+  font-weight: 400;
+}
+
+.apple-text-body {
+  font-family: var(--apple-font-text);
+  font-size: var(--apple-font-size-body);
+  line-height: var(--apple-line-height-body);
+  letter-spacing: var(--apple-letter-spacing-body);
+  font-weight: 400;
+}
+
+.apple-text-body-emphasis {
+  font-family: var(--apple-font-text);
+  font-size: var(--apple-font-size-body);
+  line-height: var(--apple-line-height-body-emphasis);
+  letter-spacing: var(--apple-letter-spacing-body-emphasis);
+  font-weight: 600;
+}
+
+.apple-text-link {
+  font-family: var(--apple-font-text);
+  font-size: var(--apple-font-size-link);
+  line-height: var(--apple-line-height-link);
+  letter-spacing: var(--apple-letter-spacing-link);
+  font-weight: 400;
+  color: var(--apple-link-blue);
+}
+
+.apple-text-caption {
+  font-family: var(--apple-font-text);
+  font-size: var(--apple-font-size-caption);
+  line-height: var(--apple-line-height-caption);
+  letter-spacing: var(--apple-letter-spacing-caption);
+  font-weight: 400;
+  color: var(--apple-text-black-80);
+}
+
+.apple-text-micro {
+  font-family: var(--apple-font-text);
+  font-size: var(--apple-font-size-micro);
+  line-height: var(--apple-line-height-micro);
+  letter-spacing: var(--apple-letter-spacing-micro);
+  font-weight: 400;
+}
+
+/* ===== Interactive Element Styles ===== */
+
+/* Focus ring - Apple Blue outline */
+:focus-visible {
+  outline: 2px solid var(--apple-blue) !important;
+  outline-offset: 2px !important;
+}
+
+/* Apple Blue interactive elements */
+.apple-interactive {
+  color: var(--apple-blue) !important;
+}
+
+.apple-interactive:hover {
+  color: var(--apple-bright-blue) !important;
+}
+
+/* Pill-shaped CTA links */
+.apple-pill-link {
+  border-radius: var(--apple-radius-pill) !important;
+  border: 1px solid currentColor !important;
+  padding: var(--apple-space-8) var(--apple-space-16) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--apple-space-8) !important;
+}
+
+.apple-pill-link:hover {
+  text-decoration: underline !important;
+  background-color: rgba(0, 113, 227, 0.08) !important;
+}

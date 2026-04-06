@@ -1,0 +1,360 @@
+/* Apple Design System Component Overrides */
+
+/* ===== Buttons ===== */
+
+/* Base Button Styles - Ensures consistent sizing */
+.ant-btn {
+  border-radius: var(--apple-radius-standard) !important;
+  font-weight: 400 !important;
+  font-size: var(--apple-font-size-button) !important;
+  border-width: 1px !important;
+}
+
+/* Primary Button - Apple Blue */
+.ant-btn-primary {
+  background: var(--apple-blue) !important;
+  border-color: var(--apple-blue) !important;
+  border-radius: var(--apple-radius-standard) !important;
+  color: var(--apple-text-white) !important;
+  font-weight: 400 !important;
+  font-size: var(--apple-font-size-button) !important;
+  border-width: 1px !important;
+}
+
+.ant-btn-primary:hover {
+  background: #0077ed !important;
+  border-color: #0077ed !important;
+}
+
+.ant-btn-primary:active {
+  background: #006ed6 !important;
+  border-color: #006ed6 !important;
+}
+
+.ant-btn-primary:focus-visible {
+  outline: 2px solid var(--apple-blue) !important;
+  outline-offset: 2px !important;
+}
+
+/* Primary Button - Dark Variant */
+.ant-btn-primary.apple-btn-dark {
+  background: var(--apple-near-black) !important;
+  border-color: var(--apple-near-black) !important;
+}
+
+.ant-btn-primary.apple-btn-dark:hover {
+  background: #2a2a2d !important;
+  border-color: #2a2a2d !important;
+}
+
+/* Pill Link Buttons (Learn more / Shop style) */
+.apple-pill-btn {
+  border-radius: var(--apple-radius-pill) !important;
+  border: 1px solid var(--apple-link-blue) !important;
+  color: var(--apple-link-blue) !important;
+  background: transparent !important;
+  padding: var(--apple-space-8) var(--apple-space-16) !important;
+  font-size: var(--apple-font-size-link) !important;
+  line-height: var(--apple-line-height-link) !important;
+  letter-spacing: var(--apple-letter-spacing-link) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--apple-space-8) !important;
+}
+
+.apple-pill-btn:hover {
+  background: rgba(0, 113, 227, 0.08) !important;
+  text-decoration: underline !important;
+  border-color: var(--apple-blue) !important;
+  color: var(--apple-blue) !important;
+}
+
+.apple-pill-btn:active {
+  background: rgba(0, 113, 227, 0.12) !important;
+}
+
+/* Filter / Search Buttons */
+.ant-btn.apple-filter-btn {
+  background: var(--apple-button-default-light) !important;
+  color: var(--apple-text-black-80) !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+  border-radius: var(--apple-radius-comfortable) !important;
+  padding: 0 var(--apple-space-14) !important;
+  font-size: var(--apple-font-size-caption) !important;
+}
+
+.ant-btn.apple-filter-btn:hover {
+  background: #f0f0f2 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Media Control Buttons (Circular) */
+.apple-media-control {
+  background: var(--apple-overlay) !important;
+  color: var(--apple-text-black-48) !important;
+  border-radius: var(--apple-radius-circle) !important;
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  min-width: auto !important;
+}
+
+.apple-media-control:hover {
+  background: rgba(210, 210, 215, 0.8) !important;
+}
+
+.apple-media-control:active {
+  transform: scale(0.9) !important;
+}
+
+/* ===== Cards ===== */
+
+.ant-card {
+  border: none !important;
+  border-radius: var(--apple-radius-standard) !important;
+  box-shadow: var(--apple-shadow-card) !important;
+  background: var(--apple-light-gray) !important;
+  overflow: hidden !important;
+}
+
+.ant-card-bordered {
+  border: none !important;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  background: transparent !important;
+  padding: var(--apple-space-20) var(--apple-space-20) 0 !important;
+}
+
+.ant-card-head-title {
+  color: var(--apple-text-near-black) !important;
+  font-size: var(--apple-font-size-card-title) !important;
+  font-weight: 700 !important;
+  line-height: var(--apple-line-height-card-title) !important;
+  letter-spacing: var(--apple-letter-spacing-card-title) !important;
+}
+
+.ant-card-body {
+  padding: var(--apple-space-20) !important;
+  color: var(--apple-text-black-80) !important;
+}
+
+/* Card in dark section */
+.apple-section-dark .ant-card {
+  background: var(--apple-dark-surface-1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.apple-section-dark .ant-card-head-title {
+  color: var(--apple-text-white) !important;
+}
+
+.apple-section-dark .ant-card-body {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ===== Navigation & Menu ===== */
+
+/* Glass navigation header */
+.ant-layout-header.apple-nav-glass {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  border-bottom: none !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  padding: 0 var(--apple-space-24) !important;
+}
+
+/* Menu items */
+.ant-menu {
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-menu-dark {
+  background: transparent !important;
+}
+
+.ant-menu-dark .ant-menu-item {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-radius: var(--apple-radius-standard) !important;
+  margin: var(--apple-space-4) var(--apple-space-8) !important;
+  height: 36px !important;
+  line-height: 36px !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  color: var(--apple-text-white) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  color: var(--apple-text-white) !important;
+  background: rgba(0, 113, 227, 0.2) !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-title {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-radius: var(--apple-radius-standard) !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-title:hover {
+  color: var(--apple-text-white) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ===== Tables ===== */
+
+.ant-table {
+  border: none !important;
+  border-radius: var(--apple-radius-standard) !important;
+  overflow: hidden !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--apple-light-gray) !important;
+  color: var(--apple-text-black-80) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  font-weight: 600 !important;
+  padding: var(--apple-space-12) var(--apple-space-16) !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  padding: var(--apple-space-12) var(--apple-space-16) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: rgba(0, 113, 227, 0.04) !important;
+}
+
+.ant-table-tbody > tr.ant-table-row-selected > td {
+  background: rgba(0, 113, 227, 0.08) !important;
+}
+
+/* ===== Forms & Inputs ===== */
+
+.ant-input {
+  border-radius: var(--apple-radius-comfortable) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: var(--apple-space-8) var(--apple-space-12) !important;
+  font-size: var(--apple-font-size-body) !important;
+  line-height: var(--apple-line-height-body) !important;
+  color: var(--apple-text-near-black) !important;
+  background: var(--apple-text-white) !important;
+}
+
+.ant-input:hover {
+  border-color: var(--apple-blue) !important;
+}
+
+.ant-input:focus {
+  border-color: var(--apple-blue) !important;
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2) !important;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: var(--apple-radius-comfortable) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: var(--apple-space-4) var(--apple-space-12) !important;
+}
+
+.ant-input-affix-wrapper:hover {
+  border-color: var(--apple-blue) !important;
+}
+
+.ant-input-affix-wrapper:focus-within {
+  border-color: var(--apple-blue) !important;
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2) !important;
+}
+
+.ant-select-selector {
+  border-radius: var(--apple-radius-comfortable) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: var(--apple-space-4) var(--apple-space-12) !important;
+}
+
+.ant-select-selector:hover {
+  border-color: var(--apple-blue) !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: var(--apple-blue) !important;
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2) !important;
+}
+
+/* ===== Modals & Dialogs ===== */
+
+.ant-modal-content {
+  border-radius: var(--apple-radius-large) !important;
+  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+}
+
+.ant-modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  padding: var(--apple-space-24) var(--apple-space-24) var(--apple-space-16) !important;
+  background: transparent !important;
+}
+
+.ant-modal-title {
+  color: var(--apple-text-near-black) !important;
+  font-size: var(--apple-font-size-card-title) !important;
+  font-weight: 700 !important;
+  line-height: var(--apple-line-height-card-title) !important;
+}
+
+.ant-modal-body {
+  padding: var(--apple-space-16) var(--apple-space-24) var(--apple-space-24) !important;
+  color: var(--apple-text-black-80) !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+  padding: var(--apple-space-16) var(--apple-space-24) var(--apple-space-24) !important;
+  background: transparent !important;
+}
+
+/* ===== Utility Classes ===== */
+
+/* Text alignment */
+.apple-text-center {
+  text-align: center !important;
+}
+
+.apple-text-left {
+  text-align: left !important;
+}
+
+.apple-text-right {
+  text-align: right !important;
+}
+
+/* Spacing utilities */
+.apple-mt-8 { margin-top: var(--apple-space-8) !important; }
+.apple-mb-8 { margin-bottom: var(--apple-space-8) !important; }
+.apple-ml-8 { margin-left: var(--apple-space-8) !important; }
+.apple-mr-8 { margin-right: var(--apple-space-8) !important; }
+.apple-p-8 { padding: var(--apple-space-8) !important; }
+
+.apple-mt-16 { margin-top: var(--apple-space-16) !important; }
+.apple-mb-16 { margin-bottom: var(--apple-space-16) !important; }
+.apple-p-16 { padding: var(--apple-space-16) !important; }
+
+.apple-mt-24 { margin-top: var(--apple-space-24) !important; }
+.apple-mb-24 { margin-bottom: var(--apple-space-24) !important; }
+.apple-p-24 { padding: var(--apple-space-24) !important; }
+
+/* Flex utilities */
+.apple-flex { display: flex !important; }
+.apple-flex-col { flex-direction: column !important; }
+.apple-items-center { align-items: center !important; }
+.apple-justify-between { justify-content: space-between !important; }
+.apple-gap-8 { gap: var(--apple-space-8) !important; }
+.apple-gap-16 { gap: var(--apple-space-16) !important; }

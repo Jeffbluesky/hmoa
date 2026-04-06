@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum CoverType {
+  front
+  back
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  role      String   @default("EDITOR") // SUPER_ADMIN, ADMIN, EDITOR
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model DictionaryType {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items Dictionary[]
+
+  @@map("dictionary_types")
+}
+
+model Dictionary {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  en        String?
+  jp        String?
+  symbol    String?  @map("symbol")
+  other     String?
+  typeId    String   @map("type_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  type               DictionaryType @relation(fields: [typeId], references: [id])
+  materialsAsUnit    Material[]     @relation("MaterialUnit")
+  productsAsCategory Product[]      @relation("ProductCategory")
+  productsAsColor    Product[]      @relation("ProductColor")
+  customersAsType Customer[]    @relation("CustomerType")
+  suppliersAsType  Supplier[]    @relation("SupplierType")
+
+  @@map("dictionaries")
+}
+
+model Material {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  specification String?
+  color         String?
+  colorCode     String?
+  unitId        String?  @map("unit_id")
+  supplierId    String?  @map("supplier_id")
+  remark        String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  unit        Dictionary?  @relation("MaterialUnit", fields: [unitId], references: [id])
+  supplier    Supplier?    @relation("MaterialSupplier", fields: [supplierId], references: [id])
+  productBOMs ProductBOM[] @relation("BOMMaterial")
+
+  @@map("materials")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  code         String   @unique // 系统自动生成，基于分类前缀
+  internalCode String   @unique @map("internal_code") // 内部编号 HM00001
+  name         String
+  itemNo       String   @unique @map("item_no") // 货号（唯一）
+  length       String?  @map("length")   // L 长
+  width        String?  @map("width")   // W 宽
+  height       String?  @map("height")   // H 高
+  seatH        String?  @map("seat_h")  // SH 座高
+  color        String? // 颜色名称
+  colorCode    String?  @map("color_code") // 色号
+  categoryId   String?  @map("category_id") // 产品分类
+  colorDictId  String?  @map("color_dict_id") // 颜色字典项ID
+  materialId   String?  @map("material_id")
+  remark       String?
+  images       String?  // 主副图JSON数组 ["url1", "url2", ...]
+  attachments  String?  // 附件JSON数组 [{"name": "xxx", "url": "xxx"}]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  category  Dictionary?  @relation("ProductCategory", fields: [categoryId], references: [id])
+  colorDict Dictionary?  @relation("ProductColor", fields: [colorDictId], references: [id])
+  boms      ProductBOM[] @relation("ProductBOMs")
+  childBOMs ProductBOM[] @relation("BOMChildProduct")
+
+  @@map("products")
+}
+
+model ProductBOM {
+  id             String   @id @default(uuid())
+  productId      String   @map("product_id")
+  materialId     String?  @map("material_id")
+  childProductId String?  @map("child_product_id")
+  quantity       Float    @default(1)
+  remark         String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  product      Product   @relation("ProductBOMs", fields: [productId], references: [id], onDelete: Cascade)
+  material     Material? @relation("BOMMaterial", fields: [materialId], references: [id], onDelete: SetNull)
+  childProduct Product?  @relation("BOMChildProduct", fields: [childProductId], references: [id], onDelete: SetNull)
+
+  @@map("product_boms")
+}
+
+model AutoNumberCounter {
+  id            String   @id @default(uuid())
+  prefix        String   @unique
+  currentNumber Int      @map("current_number")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("auto_number_counters")
+}
+
+model Customer {
+  id            String   @id @default(uuid())
+  code          String   @unique // 客户编号，自动生成
+  name          String   // 客户全称
+  shortName     String?  @map("short_name") // 客户简称
+  typeId        String?  @map("type_id") // 客户类型，关联字典表
+  country       String?  // 国家
+  contactPerson String?  @map("contact_person") // 联系人姓名
+  phone         String?  // 联系电话
+  email         String?  // 邮箱
+  address       String?  // 地址
+  remark        String?  // 备注
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  finalCustomerId String? @map("final_customer_id") // 最终客户ID（当type为代理时）
+
+  type     Dictionary? @relation("CustomerType", fields: [typeId], references: [id])
+  contacts Contact[]   @relation("CustomerContact")
+  finalCustomer Customer? @relation("CustomerFinalCustomer", fields: [finalCustomerId], references: [id])
+  agents       Customer[] @relation("CustomerFinalCustomer")
+
+  @@map("customers")
+}
+
+
+model Supplier {
+  id            String   @id @default(uuid())
+  code          String   @unique // 供应商编号
+  name          String   // 供应商全称
+  shortName     String?  @map("short_name") // 供应商简称
+  city          String?  // 城市
+  typeId        String?  @map("type_id") // 供应商类型，关联字典表
+  contactPerson String?  @map("contact_person") // 联系人
+  phone         String?  // 电话
+  email         String?  // 邮箱
+  address       String?  // 地址
+  remark        String?  // 备注
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  type      Dictionary? @relation("SupplierType", fields: [typeId], references: [id])
+  contacts  Contact[]   @relation("SupplierContact")
+  materials Material[]  @relation("MaterialSupplier")
+
+  @@map("suppliers")
+}
+
+model Contact {
+  id         String   @id @default(uuid())
+  customerId String?  @map("customer_id")
+  supplierId String?  @map("supplier_id")
+  name       String   // 联系人姓名
+  phone      String?  // 电话
+  email      String?  // 邮箱
+  position   String?  // 职位
+  isPrimary  Boolean  @default(false) @map("is_primary") // 是否为主要联系人
+  remark     String?  // 备注
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  customer Customer? @relation("CustomerContact", fields: [customerId], references: [id], onDelete: Cascade)
+  supplier Supplier? @relation("SupplierContact", fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model CatalogTemplate {
+  id          String   @id @default(uuid())
+  name        String   // 模板名称
+  description String?  // 模板描述
+
+  // 模板配置 - JSON格式存储字段布局和样式
+  config      Json     // TemplateConfig类型
+
+  // 页面设置
+  pageSize    String   @default("A4")      // 纸张尺寸: A4, A3, Letter
+  orientation String   @default("portrait") // 方向: portrait, landscape
+  margin      String   @default("20")      // 页边距 (mm)
+
+  // 元数据
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdBy   String?  @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  catalogs Catalog[]
+
+  @@map("catalog_templates")
+}
+
+model CatalogCover {
+  id          String   @id @default(uuid())
+  name        String   // 封面名称
+  type        String   // 类型: front (封面), back (封底)
+  url         String   // 图片URL
+  thumbnail   String?  // 缩略图URL
+
+  // 元数据
+  size        Int?     // 文件大小 (bytes)
+  width       Int?     // 图片宽度
+  height      Int?     // 图片高度
+  mimeType    String?  @map("mime_type") // 文件类型
+
+  isActive    Boolean  @default(true) @map("is_active")
+  createdBy   String?  @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  frontCatalogs Catalog[] @relation("CatalogFrontCover")
+  backCatalogs  Catalog[] @relation("CatalogBackCover")
+
+  @@map("catalog_covers")
+}
+
+model Catalog {
+  id          String   @id @default(uuid())
+  name        String   // 目录名称
+  description String?  // 目录描述
+
+  // 关联关系
+  templateId  String   @map("template_id")
+  frontCoverId String?  @map("front_cover_id")
+  backCoverId  String?  @map("back_cover_id")
+
+  // 产品选择 - JSON数组存储产品ID
+  productIds  Json     // string[] 产品ID数组
+
+  // 生成状态
+  status      String   @default("pending") // pending, generating, completed, failed
+  pdfUrl      String?  @map("pdf_url")     // 生成的PDF URL
+  pdfSize     Int?     @map("pdf_size")    // PDF文件大小
+  pageCount   Int?     @map("page_count")   // 页数
+
+  // 错误信息
+  error       String?  // 生成错误信息
+
+  // 元数据
+  createdBy   String?  @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  generatedAt DateTime? @map("generated_at") // 生成完成时间
+
+  // 关系
+  template   CatalogTemplate @relation(fields: [templateId], references: [id])
+  frontCover CatalogCover?   @relation("CatalogFrontCover", fields: [frontCoverId], references: [id])
+  backCover  CatalogCover?   @relation("CatalogBackCover", fields: [backCoverId], references: [id])
+
+  @@map("catalogs")
+}

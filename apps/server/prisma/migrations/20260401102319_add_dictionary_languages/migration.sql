@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `dictionaries` ADD COLUMN `en` VARCHAR(191) NULL,
+    ADD COLUMN `jp` VARCHAR(191) NULL,
+    ADD COLUMN `other` VARCHAR(191) NULL,
+    ADD COLUMN `symbol` VARCHAR(191) NULL;

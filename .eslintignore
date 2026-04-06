@@ -1,0 +1,44 @@
+# Ignore artifacts
+node_modules
+dist
+build
+coverage
+out
+.next
+.nuxt
+.cache
+
+# Ignore package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore generated files
+*.log
+.env*
+!.env.example
+
+# Ignore turbo cache
+.turbo
+
+# Ignore Prisma generated files
+packages/types/dist
+packages/utils/dist
+apps/server/prisma/migrations
+
+# Ignore config files
+*.config.js
+*.config.ts
+
+# Ignore TypeScript declaration files
+**/*.d.ts
