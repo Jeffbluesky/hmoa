@@ -9,6 +9,7 @@ import {
   DatabaseOutlined,
   ShoppingOutlined,
   AppstoreOutlined,
+  FilePdfOutlined,
 } from '@ant-design/icons'
 import { useAuthStore } from '../stores/auth'
 
@@ -36,6 +37,16 @@ const menuItems = [
     children: [
       { key: '/customers', icon: <TeamOutlined />, label: '客户管理' },
       { key: '/suppliers', icon: <TeamOutlined />, label: '供应商管理' },
+    ],
+  },
+  {
+    key: '/catalog-group',
+    icon: <FilePdfOutlined />,
+    label: '产品目录',
+    children: [
+      { key: '/catalog', icon: <AppstoreOutlined />, label: '目录列表' },
+      { key: '/catalog/templates', icon: <DatabaseOutlined />, label: '目录模板' },
+      { key: '/catalog/covers', icon: <ShoppingOutlined />, label: '封面管理' },
     ],
   },
 ]

@@ -12,6 +12,11 @@ import Products from './pages/Products'
 import ProductForm from './pages/Products/ProductForm'
 import Customers from './pages/Customers'
 import Suppliers from './pages/Suppliers'
+import CatalogList from './pages/Catalog'
+import CatalogForm from './pages/Catalog/CatalogForm'
+import Templates from './pages/Catalog/Templates'
+import TemplateEditor from './pages/Catalog/TemplateEditor'
+import Covers from './pages/Catalog/Covers'
 
 function App() {
   const user = useAuthStore((state) => state.user)
@@ -37,6 +42,12 @@ function App() {
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="customers" element={<Customers />} />
           <Route path="suppliers" element={<Suppliers />} />
+          <Route path="catalog" element={<CatalogList />} />
+          <Route path="catalog/new" element={<CatalogForm />} />
+          <Route path="catalog/templates" element={<Templates />} />
+          <Route path="catalog/templates/new" element={<TemplateEditor />} />
+          <Route path="catalog/templates/:id/edit" element={<TemplateEditor />} />
+          <Route path="catalog/covers" element={<Covers />} />
         </Route>
       </Routes>
     </BrowserRouter>
