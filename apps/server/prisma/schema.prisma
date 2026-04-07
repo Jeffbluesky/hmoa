@@ -270,6 +270,7 @@ model Catalog {
 
   // 生成状态
   status      String   @default("pending") // pending, generating, completed, failed
+  pdfPath     String?  @map("pdf_path")     // 本地文件路径
   pdfUrl      String?  @map("pdf_url")     // 生成的PDF URL
   pdfSize     Int?     @map("pdf_size")    // PDF文件大小
   pageCount   Int?     @map("page_count")   // 页数

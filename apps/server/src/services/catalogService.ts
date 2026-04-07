@@ -148,6 +148,7 @@ export async function updateCatalog(id: string, input: UpdateCatalogInput) {
     productIds: input.productIds,
     status: input.status,
     pdfUrl: input.pdfUrl ?? null,
+    pdfPath: (input as any).pdfPath ?? null,
     pdfSize: input.pdfSize ?? null,
     pageCount: input.pageCount ?? null,
     error: input.error ?? null,
