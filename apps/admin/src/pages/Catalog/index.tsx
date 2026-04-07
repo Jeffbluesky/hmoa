@@ -20,7 +20,7 @@ interface Catalog {
   error?: string
   generatedAt?: string
   createdAt: string
-  template?: { name: string; layout: string }
+  template?: { name: string; config?: { columns: number } }
 }
 
 const STATUS_TAG: Record<string, { color: string; label: string }> = {
@@ -30,7 +30,7 @@ const STATUS_TAG: Record<string, { color: string; label: string }> = {
   failed:     { color: 'error',     label: '失败' },
 }
 
-const LAYOUT_LABELS: Record<string, string> = { single: '单列', double: '双列', quad: '四格' }
+const COLS_LABEL: Record<number, string> = { 1: '单列', 2: '双列', 4: '四格' }
 
 function CatalogList() {
   const navigate = useNavigate()
@@ -111,7 +111,7 @@ function CatalogList() {
       key: 'template',
       width: 160,
       render: (_, r) => r.template
-        ? <span>{r.template.name} <Tag color="blue">{LAYOUT_LABELS[r.template.layout] ?? r.template.layout}</Tag></span>
+        ? <span>{r.template.name} <Tag color="blue">{COLS_LABEL[r.template.config?.columns ?? 2] ?? `${r.template.config?.columns}列`}</Tag></span>
         : '-',
     },
     {
