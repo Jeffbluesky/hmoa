@@ -1,43 +1,38 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Table, Button, Space, Popconfirm, Modal, Form, Input, Select, App, Tag } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { Table, Button, Space, Popconfirm, App, Tag, Input } from 'antd'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { http } from '../../utils/api'
 import type { ColumnsType } from 'antd/es/table'
+
+interface TemplateConfig {
+  columns: number
+  fields: Array<{ productField: string; label: string; type: string; visible: boolean; order: number }>
+}
 
 interface CatalogTemplate {
   id: string
   name: string
-  layout: 'single' | 'double' | 'quad'
-  fields: string[]
   description?: string
+  config: TemplateConfig
   createdAt: string
   updatedAt: string
 }
 
-const LAYOUT_LABELS: Record<string, string> = {
-  single: '单列',
-  double: '双列',
-  quad: '四格',
-}
-
-const LAYOUT_COLORS: Record<string, string> = {
-  single: 'blue',
-  double: 'green',
-  quad: 'purple',
+const COLS_LABEL: Record<number, { label: string; color: string }> = {
+  1: { label: '单列', color: 'blue' },
+  2: { label: '双列', color: 'green' },
+  4: { label: '四格', color: 'purple' },
 }
 
 function Templates() {
   const { message } = App.useApp()
+  const navigate = useNavigate()
   const [templates, setTemplates] = useState<CatalogTemplate[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [keyword, setKeyword] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<CatalogTemplate | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [availableFields, setAvailableFields] = useState<{ value: string; label: string; type: string }[]>([])
-  const [form] = Form.useForm()
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true)
@@ -54,53 +49,7 @@ function Templates() {
     }
   }, [page, keyword, message])
 
-  const fetchFields = useCallback(async () => {
-    try {
-      const data = await http.get<{ key: string; label: string }[]>('/catalog-templates/available-fields')
-      setAvailableFields(data)
-    } catch {
-      // ignore
-    }
-  }, [])
-
   useEffect(() => { fetchTemplates() }, [fetchTemplates])
-  useEffect(() => { fetchFields() }, [fetchFields])
-
-  const openCreate = () => {
-    setEditing(null)
-    form.resetFields()
-    setModalOpen(true)
-  }
-
-  const openEdit = (record: CatalogTemplate) => {
-    setEditing(record)
-    form.setFieldsValue({
-      name: record.name,
-      layout: record.layout,
-      fields: record.fields,
-      description: record.description,
-    })
-    setModalOpen(true)
-  }
-
-  const handleSave = async (values: { name: string; layout: string; fields: string[]; description?: string }) => {
-    setSaving(true)
-    try {
-      if (editing) {
-        await http.put(`/catalog-templates/${editing.id}`, values)
-        message.success('更新成功')
-      } else {
-        await http.post('/catalog-templates', values)
-        message.success('创建成功')
-      }
-      setModalOpen(false)
-      fetchTemplates()
-    } catch (err: any) {
-      message.error(err?.response?.data?.message || '保存失败')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   const handleDelete = async (id: string) => {
     try {
@@ -120,19 +69,19 @@ function Templates() {
     },
     {
       title: '布局',
-      dataIndex: 'layout',
       key: 'layout',
       width: 100,
-      render: (layout: string) => (
-        <Tag color={LAYOUT_COLORS[layout]}>{LAYOUT_LABELS[layout] ?? layout}</Tag>
-      ),
+      render: (_, record) => {
+        const cols = record.config?.columns ?? 2
+        const info = COLS_LABEL[cols] ?? { label: `${cols}列`, color: 'default' }
+        return <Tag color={info.color}>{info.label}</Tag>
+      },
     },
     {
       title: '字段数',
-      dataIndex: 'fields',
       key: 'fields',
       width: 80,
-      render: (fields: string[]) => fields?.length ?? 0,
+      render: (_, record) => record.config?.fields?.length ?? 0,
     },
     {
       title: '描述',
@@ -157,7 +106,7 @@ function Templates() {
             type="link"
             size="small"
             icon={<EditOutlined />}
-            onClick={() => openEdit(record)}
+            onClick={() => navigate(`/catalog/templates/${record.id}/edit`)}
           />
           <Popconfirm
             title="确认删除"
@@ -184,7 +133,7 @@ function Templates() {
             style={{ width: 220 }}
             onSearch={(v) => { setKeyword(v); setPage(1) }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/catalog/templates/new')}>
             新建模板
           </Button>
         </Space>
@@ -203,46 +152,6 @@ function Templates() {
           showTotal: (t) => `共 ${t} 条`,
         }}
       />
-
-      <Modal
-        title={
-          <Space>
-            <SettingOutlined />
-            {editing ? '编辑模板' : '新建模板'}
-          </Space>
-        }
-        open={modalOpen}
-        onOk={() => form.submit()}
-        onCancel={() => { setModalOpen(false); form.resetFields() }}
-        confirmLoading={saving}
-        maskClosable={false}
-        width={560}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave} style={{ marginTop: 16 }}>
-          <Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请输入模板名称' }]}>
-            <Input placeholder="如：标准双列模板" />
-          </Form.Item>
-          <Form.Item name="layout" label="布局" rules={[{ required: true, message: '请选择布局' }]}>
-            <Select
-              options={[
-                { value: 'single', label: '单列 — 每页1个产品，大图展示' },
-                { value: 'double', label: '双列 — 每页2个产品' },
-                { value: 'quad', label: '四格 — 每页4个产品' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item name="fields" label="展示字段" rules={[{ required: true, message: '请至少选择一个字段' }]}>
-            <Select
-              mode="multiple"
-              placeholder="选择要在目录中展示的产品字段"
-              options={availableFields.map((f) => ({ value: f.value, label: f.label }))}
-            />
-          </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea rows={2} placeholder="可选备注" />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   )
 }

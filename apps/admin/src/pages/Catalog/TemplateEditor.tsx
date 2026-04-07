@@ -31,18 +31,41 @@ interface AvailableField {
   type: string
 }
 
+interface TemplateConfig {
+  layout: string
+  columns: number
+  itemsPerPage: number
+  fields: Array<{
+    productField: string
+    label: string
+    type: string
+    visible: boolean
+    order: number
+  }>
+  styles: {
+    titleFontSize: number
+    titleFontWeight: string
+    titleColor: string
+    fieldFontSize: number
+    fieldColor: string
+    backgroundColor: string
+    borderColor: string
+    padding: number
+    spacing: number
+  }
+}
+
 interface CatalogTemplate {
   id: string
   name: string
-  layout: 'single' | 'double' | 'quad'
-  fields: string[]
   description?: string
+  config: TemplateConfig
 }
 
 const LAYOUT_OPTIONS = [
-  { value: 'single', label: '单列', desc: '每页 1 个产品' },
-  { value: 'double', label: '双列', desc: '每页 2 个产品' },
-  { value: 'quad', label: '四格', desc: '每页 4 个产品' },
+  { value: 'single', label: '单列', desc: '每页 1 个产品', columns: 1, itemsPerPage: 1 },
+  { value: 'double', label: '双列', desc: '每页 2 个产品', columns: 2, itemsPerPage: 2 },
+  { value: 'quad',   label: '四格', desc: '每页 4 个产品', columns: 4, itemsPerPage: 4 },
 ]
 
 const FIELD_TYPE_COLORS: Record<string, string> = {
@@ -50,6 +73,18 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
 }
 const TYPE_LABELS: Record<string, string> = {
   image: '图片', text: '文本', code: '编码', dimension: '尺寸', color: '颜色',
+}
+
+const DEFAULT_STYLES: TemplateConfig['styles'] = {
+  titleFontSize: 16,
+  titleFontWeight: 'bold',
+  titleColor: '#000000',
+  fieldFontSize: 12,
+  fieldColor: '#333333',
+  backgroundColor: '#FFFFFF',
+  borderColor: '#E0E0E0',
+  padding: 10,
+  spacing: 8,
 }
 
 // ── 可排序的已选字段行 ──────────────────────────────────────────
@@ -101,7 +136,7 @@ function SortableFieldRow({
 }
 
 // ── 产品卡片预览 ────────────────────────────────────────────────
-function ProductCardPreview({ fields, fieldMap }: { fields: AvailableField[]; fieldMap: Record<string, AvailableField> }) {
+function ProductCardPreview({ fields }: { fields: AvailableField[] }) {
   const imageFields = fields.filter(f => f.type === 'image')
   const textFields = fields.filter(f => f.type !== 'image')
   return (
@@ -127,17 +162,13 @@ function ProductCardPreview({ fields, fieldMap }: { fields: AvailableField[]; fi
 }
 
 // ── 布局预览画布 ────────────────────────────────────────────────
-function LayoutCanvas({ layout, fields, fieldMap }: {
-  layout: string
-  fields: AvailableField[]
-  fieldMap: Record<string, AvailableField>
-}) {
-  const cols = layout === 'single' ? 1 : layout === 'double' ? 2 : 4
-  const colSpan = 24 / cols
+function LayoutCanvas({ layout, fields }: { layout: string; fields: AvailableField[] }) {
+  const opt = LAYOUT_OPTIONS.find(l => l.value === layout) ?? LAYOUT_OPTIONS[1]
+  const cols = opt.columns
   return (
     <div style={{ background: '#f5f5f7', borderRadius: 8, padding: 16 }}>
       <div style={{ fontSize: 11, color: '#999', textAlign: 'center', marginBottom: 12 }}>
-        A4 页面预览 · {LAYOUT_OPTIONS.find(l => l.value === layout)?.label}布局
+        A4 页面预览 · {opt.label}布局
       </div>
       <div style={{
         background: '#fff',
@@ -149,7 +180,7 @@ function LayoutCanvas({ layout, fields, fieldMap }: {
         gap: 12,
       }}>
         {Array.from({ length: cols }).map((_, i) => (
-          <ProductCardPreview key={i} fields={fields} fieldMap={fieldMap} />
+          <ProductCardPreview key={i} fields={fields} />
         ))}
       </div>
       <div style={{ fontSize: 11, color: '#bbb', textAlign: 'center', marginTop: 8 }}>
@@ -173,10 +204,7 @@ function TemplateEditor() {
   const [activeField, setActiveField] = useState<AvailableField | null>(null)
 
   const isEdit = Boolean(id)
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-
-  const fieldMap = Object.fromEntries(availableFields.map(f => [f.value, f]))
   const selectedValues = new Set(selectedFields.map(f => f.value))
 
   const fetchFields = useCallback(async () => {
@@ -191,13 +219,20 @@ function TemplateEditor() {
     setLoading(true)
     try {
       const data = await http.get<CatalogTemplate>(`/catalog-templates/${id}`)
-      form.setFieldsValue({ name: data.name, layout: data.layout, description: data.description })
-      setLayout(data.layout)
-      // 等 availableFields 加载后再设置，用 setTimeout 确保 availableFields 已就绪
-      setSelectedFields(
-        data.fields
-          .map(v => ({ value: v, label: v, type: 'text' })) // 临时占位，fetchFields 后替换
-      )
+      const cfg = data.config
+
+      // 从 columns 反推前端 layout key
+      const layoutOpt = LAYOUT_OPTIONS.find(l => l.columns === cfg.columns) ?? LAYOUT_OPTIONS[1]
+      const layoutKey = layoutOpt.value
+
+      form.setFieldsValue({ name: data.name, layout: layoutKey, description: data.description })
+      setLayout(layoutKey)
+
+      // 暂存 productField 顺序，等 availableFields 加载后映射
+      const orderedFields = [...cfg.fields]
+        .sort((a, b) => a.order - b.order)
+        .map(f => ({ value: f.productField, label: f.label, type: f.type }))
+      setSelectedFields(orderedFields)
     } catch { message.error('获取模板失败') }
     finally { setLoading(false) }
   }, [id, form, message])
@@ -205,9 +240,10 @@ function TemplateEditor() {
   useEffect(() => { fetchFields() }, [fetchFields])
   useEffect(() => { fetchTemplate() }, [fetchTemplate])
 
-  // 当 availableFields 加载完成后，用真实字段信息替换占位
+  // 当 availableFields 加载完成后，用真实字段信息替换（保持顺序）
   useEffect(() => {
     if (availableFields.length === 0) return
+    const fieldMap = Object.fromEntries(availableFields.map(f => [f.value, f]))
     setSelectedFields(prev =>
       prev.map(f => fieldMap[f.value] ?? f).filter(f => fieldMap[f.value])
     )
@@ -224,8 +260,7 @@ function TemplateEditor() {
   }
 
   const handleDragStart = (event: DragStartEvent) => {
-    const f = selectedFields.find(f => f.value === event.active.id)
-    setActiveField(f ?? null)
+    setActiveField(selectedFields.find(f => f.value === event.active.id) ?? null)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -243,7 +278,22 @@ function TemplateEditor() {
     if (selectedFields.length === 0) { message.warning('请至少添加一个展示字段'); return }
     setSaving(true)
     try {
-      const payload = { ...values, fields: selectedFields.map(f => f.value) }
+      const opt = LAYOUT_OPTIONS.find(l => l.value === values.layout) ?? LAYOUT_OPTIONS[1]
+      const config: TemplateConfig = {
+        layout: 'grid',
+        columns: opt.columns,
+        itemsPerPage: opt.itemsPerPage,
+        fields: selectedFields.map((f, i) => ({
+          productField: f.value,
+          label: f.label,
+          type: f.type,
+          visible: true,
+          order: i,
+        })),
+        styles: DEFAULT_STYLES,
+      }
+      const payload = { name: values.name, description: values.description, config }
+
       if (isEdit) {
         await http.put(`/catalog-templates/${id}`, payload)
         message.success('更新成功')
@@ -376,7 +426,7 @@ function TemplateEditor() {
           {/* 右栏：实时预览 */}
           <Col span={8}>
             <Card title="实时预览" style={{ position: 'sticky', top: 24 }}>
-              <LayoutCanvas layout={layout} fields={selectedFields} fieldMap={fieldMap} />
+              <LayoutCanvas layout={layout} fields={selectedFields} />
             </Card>
           </Col>
         </Row>
