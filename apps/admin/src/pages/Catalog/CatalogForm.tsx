@@ -7,11 +7,16 @@ import { ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined } from '@ant-desig
 import { http } from '../../utils/api'
 import type { ColumnsType } from 'antd/es/table'
 
-interface CatalogTemplate { id: string; name: string; layout: string; fields: string[] }
+interface CatalogTemplate {
+  id: string
+  name: string
+  description?: string
+  config: { columns: number; fields: Array<{ productField: string }> }
+}
+
+const COLS_LABEL: Record<number, string> = { 1: '单列', 2: '双列', 4: '四格' }
 interface CatalogCover { id: string; name: string; type: string; url: string }
 interface Product { id: string; name: string; itemNo?: string; code?: string; mainImage?: string; category?: string }
-
-const LAYOUT_LABELS: Record<string, string> = { single: '单列', double: '双列', quad: '四格' }
 
 function CatalogForm() {
   const navigate = useNavigate()
@@ -175,8 +180,8 @@ function CatalogForm() {
                       }}
                     >
                       <div style={{ fontWeight: 500 }}>{t.name}</div>
-                      <Tag color="blue" style={{ marginTop: 4 }}>{LAYOUT_LABELS[t.layout] ?? t.layout}</Tag>
-                      <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>{t.fields.length} 个字段</div>
+                      <Tag color="blue" style={{ marginTop: 4 }}>{COLS_LABEL[t.config?.columns] ?? `${t.config?.columns}列`}</Tag>
+                      <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>{t.config?.fields?.length ?? 0} 个字段</div>
                     </Card>
                   </Col>
                 ))}
