@@ -36,7 +36,7 @@ function Templates() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<CatalogTemplate | null>(null)
   const [saving, setSaving] = useState(false)
-  const [availableFields, setAvailableFields] = useState<{ key: string; label: string }[]>([])
+  const [availableFields, setAvailableFields] = useState<{ value: string; label: string; type: string }[]>([])
   const [form] = Form.useForm()
 
   const fetchTemplates = useCallback(async () => {
@@ -235,7 +235,7 @@ function Templates() {
             <Select
               mode="multiple"
               placeholder="选择要在目录中展示的产品字段"
-              options={availableFields.map((f) => ({ value: f.key, label: f.label }))}
+              options={availableFields.map((f) => ({ value: f.value, label: f.label }))}
             />
           </Form.Item>
           <Form.Item name="description" label="描述">
